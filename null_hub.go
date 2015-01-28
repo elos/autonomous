@@ -5,14 +5,14 @@ import (
 )
 
 type NullHub struct {
-	*BaseAgent
+	*Core
 	m                sync.Mutex
 	RegisteredAgents map[Agent]bool
 }
 
 func NewNullHub() *NullHub {
 	return &NullHub{
-		BaseAgent:        NewBaseAgent(),
+		Core:             NewCore(),
 		RegisteredAgents: make(map[Agent]bool),
 	}
 }
@@ -35,6 +35,6 @@ func (h *NullHub) Reset() {
 	h.m.Lock()
 	defer h.m.Unlock()
 
-	h.BaseAgent.Shutdown()
+	h.Core.Shutdown()
 	h.RegisteredAgents = make(map[Agent]bool)
 }

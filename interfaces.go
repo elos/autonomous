@@ -3,6 +3,8 @@ package autonomous
 import (
 	"time"
 
+	"sync"
+
 	"github.com/elos/data"
 )
 
@@ -10,7 +12,7 @@ type Agent interface {
 	Run()
 	Stop()
 	Kill()
-	Alive() bool
+	Alive() *sync.Cond
 
 	SetManager(Manager)
 	Manager() Manager

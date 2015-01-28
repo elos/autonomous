@@ -1,7 +1,7 @@
 package autonomous
 
 type AgentHub struct {
-	*BaseAgent
+	*Core
 
 	start            chan Agent
 	stop             chan Agent
@@ -10,7 +10,7 @@ type AgentHub struct {
 
 func NewAgentHub() *AgentHub {
 	return &AgentHub{
-		BaseAgent:        NewBaseAgent(),
+		Core:             NewCore(),
 		start:            make(chan Agent),
 		stop:             make(chan Agent),
 		registeredAgents: make(map[Agent]bool),
@@ -27,25 +27,29 @@ func (h *AgentHub) StopAgent(a Agent) {
 
 func (h *AgentHub) Run() {
 	h.startup()
-	stop := h.BaseAgent.StopChannel()
 
+	stop := *h.Core.StopChannel()
+
+Run:
 	for {
 		select {
 		case a := <-h.start:
 			go a.Run()
 			h.registeredAgents[a] = true
 		case a := <-h.stop:
-			go a.Run()
+			go a.Stop()
 			delete(h.registeredAgents, a)
-		case _ = <-*stop:
-			h.shutdown()
-			break
+		case b := <-stop:
+			if b {
+				h.shutdown()
+				break Run
+			}
 		}
 	}
 }
 
 func (h *AgentHub) startup() {
-	h.BaseAgent.Startup()
+	h.Core.Startup()
 }
 
 func (h *AgentHub) shutdown() {
@@ -53,5 +57,5 @@ func (h *AgentHub) shutdown() {
 		go a.Stop()
 	}
 
-	h.BaseAgent.Shutdown()
+	h.Core.Shutdown()
 }
