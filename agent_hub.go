@@ -1,7 +1,13 @@
 package autonomous
 
+import (
+	"sync"
+)
+
 type AgentHub struct {
-	*Core
+	Life
+	Stopper
+	Managed
 
 	start            chan Agent
 	stop             chan Agent
@@ -9,12 +15,9 @@ type AgentHub struct {
 }
 
 func NewAgentHub() *AgentHub {
-	return &AgentHub{
-		Core:             NewCore(),
-		start:            make(chan Agent),
-		stop:             make(chan Agent),
-		registeredAgents: make(map[Agent]bool),
-	}
+	h := new(AgentHub)
+	h.Life = NewLife()
+	return h
 }
 
 func (h *AgentHub) StartAgent(a Agent) {
@@ -27,8 +30,7 @@ func (h *AgentHub) StopAgent(a Agent) {
 
 func (h *AgentHub) Run() {
 	h.startup()
-
-	stop := *h.Core.StopChannel()
+	h.Life.Begin()
 
 Run:
 	for {
@@ -39,23 +41,29 @@ Run:
 		case a := <-h.stop:
 			go a.Stop()
 			delete(h.registeredAgents, a)
-		case b := <-stop:
-			if b {
-				h.shutdown()
-				break Run
-			}
+		case <-h.Stopper:
+			break Run
 		}
 	}
+
+	h.shutdown()
+	h.Life.End()
 }
 
 func (h *AgentHub) startup() {
-	h.Core.Startup()
 }
 
 func (h *AgentHub) shutdown() {
+	var wg sync.WaitGroup
+
 	for a, _ := range h.registeredAgents {
+		wg.Add(1)
 		go a.Stop()
+		go func() {
+			a.Stopped().Wait()
+			wg.Done()
+		}()
 	}
 
-	h.Core.Shutdown()
+	wg.Wait()
 }

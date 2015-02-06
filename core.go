@@ -2,97 +2,65 @@ package autonomous
 
 import (
 	"github.com/elos/data"
-	"log"
 	"sync"
 )
 
-func NewCore() *Core {
-	s := make(chan bool)
-	c := &Core{
-		stop: &s,
-		m:    &sync.Mutex{},
-	}
-
-	c.alive = sync.NewCond(c.m)
-
-	return c
+type Managed struct {
+	manager Manager
+	sync.RWMutex
 }
 
-type Core struct {
-	running bool
-	alive   *sync.Cond
-	stop    *chan bool
+func (m *Managed) Manager() Manager {
+	m.RLock()
+	defer m.RUnlock()
 
-	manager   Manager
-	processes int
-
-	m *sync.Mutex
+	return m.manager
 }
 
-func (b *Core) SetManager(m Manager) {
-	b.m.Lock()
-	defer b.m.Unlock()
-
-	b.manager = m
+func (m *Managed) SetManager(man Manager) {
+	m.Lock()
+	defer m.Unlock()
+	m.manager = man
 }
 
-func (b *Core) Manager() Manager {
-	b.m.Lock()
-	defer b.m.Unlock()
-
-	return b.manager
+type Tallied struct {
+	tally int
+	sync.RWMutex
 }
 
-func (b *Core) Stop() {
-	*(b.stop) <- true
+func (t *Tallied) Tally() int {
+	t.RLock()
+	defer t.RUnlock()
+
+	return t.tally
 }
 
-func (b *Core) Kill() {
-	*(b.stop) <- true
+func (t *Tallied) Incr() {
+	t.Add(1)
 }
 
-func (b *Core) Alive() *sync.Cond {
-	b.m.Lock()
-	defer b.m.Unlock()
-	log.Printf("This is the alive function, this agent is: %s", b.running)
-
-	return b.alive
+func (t *Tallied) Decr() {
+	t.Drop(1)
 }
 
-func (b *Core) IncrementProcesses() {
-	b.m.Lock()
-	defer b.m.Unlock()
+func (t *Tallied) Add(delta int) {
+	t.Lock()
+	defer t.Unlock()
 
-	b.processes += 1
+	t.tally += delta
 }
 
-func (b *Core) DecrementProcesses() {
-	b.m.Lock()
-	defer b.m.Unlock()
+func (t *Tallied) Drop(delta int) {
+	t.Lock()
+	defer t.Unlock()
 
-	b.processes -= 1
+	t.tally -= delta
 }
 
-func (b *Core) StopChannel() *chan bool {
-	return b.stop
-}
+type Stopper chan bool
 
-func (b *Core) Run() {
-	b.Startup()
-}
-
-func (b *Core) Startup() {
-	b.m.Lock()
-	defer b.m.Unlock()
-	b.running = true
-	b.alive.Broadcast()
-}
-
-func (b *Core) Shutdown() {
-	b.m.Lock()
-	defer b.m.Unlock()
-	b.running = false
-	b.alive.Broadcast()
+func (s Stopper) Stop() {
+	s <- true
 }
 
 type Identified struct {
