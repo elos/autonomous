@@ -7,7 +7,7 @@ import (
 )
 
 type Agent interface {
-	Run()
+	Start()
 	Stop()
 
 	Alive() bool
