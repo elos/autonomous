@@ -65,5 +65,6 @@ func (h *Hub) shutdown() {
 }
 
 func (h *Hub) Agents() map[Agent]bool {
-	return copy(h.agents)
+	as := h.agents
+	return as
 }
