@@ -1,0 +1,10 @@
+language: go
+go:
+    - 1.3
+    - tip
+
+install:
+    - go get -v -t ./...
+    - export PATH=$PATH:$HOME/gopath/bin
+
+script: go test
