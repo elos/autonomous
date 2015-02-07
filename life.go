@@ -48,14 +48,6 @@ func (l *life) End() {
 	l.stopped.Broadcast()
 }
 
-func (l *life) Started() *sync.Cond {
-	return l.started
-}
-
-func (l *life) Stopped() *sync.Cond {
-	return l.stopped
-}
-
 func (l *life) Alive() bool {
 	l.m.Lock()
 	defer l.m.Unlock()

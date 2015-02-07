@@ -1,9 +1,5 @@
 package autonomous
 
-import (
-	"github.com/elos/data"
-)
-
 type Agent interface {
 	Start()
 	Stop()
@@ -14,11 +10,6 @@ type Agent interface {
 
 	SetManager(Manager)
 	Manager() Manager
-}
-
-type DataAgent interface {
-	SetDataOwner(data.Identifiable)
-	DataOwner() data.Identifiable
 }
 
 type Manager interface {

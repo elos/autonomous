@@ -1,36 +1,36 @@
 package autonomous
 
 import (
-	"github.com/elos/data"
 	"sync"
 )
 
 type Managed struct {
 	manager Manager
-	sync.RWMutex
+	sync.Mutex
 }
 
 func (m *Managed) Manager() Manager {
-	m.RLock()
-	defer m.RUnlock()
+	m.Lock()
+	defer m.Unlock()
 
 	return m.manager
 }
 
-func (m *Managed) SetManager(man Manager) {
+func (m *Managed) SetManager(newM Manager) {
 	m.Lock()
 	defer m.Unlock()
-	m.manager = man
+
+	m.manager = newM
 }
 
 type Tallied struct {
 	tally int
-	sync.RWMutex
+	sync.Mutex
 }
 
 func (t *Tallied) Tally() int {
-	t.RLock()
-	defer t.RUnlock()
+	t.Lock()
+	defer t.Unlock()
 
 	return t.tally
 }
@@ -61,26 +61,4 @@ type Stopper chan bool
 
 func (s Stopper) Stop() {
 	s <- true
-}
-
-type Identified struct {
-	dataAgent data.Identifiable
-	m         sync.Mutex
-}
-
-func NewIdentified() *Identified {
-	return &Identified{}
-}
-
-func (d *Identified) SetDataOwner(a data.Identifiable) {
-	d.m.Lock()
-	defer d.m.Unlock()
-	d.dataAgent = a
-}
-
-func (d *Identified) DataOwner() data.Identifiable {
-	d.m.Lock()
-	defer d.m.Unlock()
-
-	return d.dataAgent
 }
