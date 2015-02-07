@@ -6,16 +6,17 @@ type Life interface {
 	Alive() bool
 	Begin()
 	End()
-	Started() *sync.Cond
-	Stopped() *sync.Cond
+	WaitStart()
+	WaitStop()
 }
 
 type life struct {
-	alive   bool
-	m       *sync.Mutex
+	alive bool
+	m     *sync.Mutex
+	stop  chan bool
+
 	started *sync.Cond
 	stopped *sync.Cond
-	stop    chan bool
 }
 
 func NewLife() Life {
@@ -60,4 +61,14 @@ func (l *life) Alive() bool {
 	defer l.m.Unlock()
 
 	return l.alive
+}
+
+func (l *life) WaitStart() {
+	l.started.L.Lock()
+	l.started.Wait()
+}
+
+func (l *life) WaitStop() {
+	l.stopped.L.Lock()
+	l.stopped.Wait()
 }

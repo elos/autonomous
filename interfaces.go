@@ -1,8 +1,6 @@
 package autonomous
 
 import (
-	"sync"
-
 	"github.com/elos/data"
 )
 
@@ -11,8 +9,8 @@ type Agent interface {
 	Stop()
 
 	Alive() bool
-	Started() *sync.Cond
-	Stopped() *sync.Cond
+	WaitStart()
+	WaitStop()
 
 	SetManager(Manager)
 	Manager() Manager

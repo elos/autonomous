@@ -1,6 +1,7 @@
 package autonomous
 
 import (
+	"log"
 	"sync"
 )
 
@@ -15,8 +16,15 @@ type Hub struct {
 }
 
 func NewHub() *Hub {
-	h := new(Hub)
-	h.Life = NewLife()
+	h := &Hub{
+		Life:    NewLife(),
+		Stopper: make(Stopper),
+		Managed: *new(Managed),
+		start:   make(chan Agent),
+		stop:    make(chan Agent),
+		agents:  make(map[Agent]bool),
+	}
+
 	return h
 }
 
@@ -28,13 +36,14 @@ func (h *Hub) StopAgent(a Agent) {
 	h.stop <- a
 }
 
-func (h *Hub) Run() {
+func (h *Hub) Start() {
 	h.Life.Begin()
 
 Run:
 	for {
 		select {
 		case a := <-h.start:
+			log.Printf("Starting agent: %+v", a)
 			go a.Start()
 			h.agents[a] = true
 		case a := <-h.stop:
@@ -56,7 +65,7 @@ func (h *Hub) shutdown() {
 		wg.Add(1)
 		go agent.Stop()
 		go func() {
-			agent.Stopped().Wait()
+			agent.WaitStop()
 			wg.Done()
 		}()
 	}
