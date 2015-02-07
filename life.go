@@ -66,9 +66,11 @@ func (l *life) Alive() bool {
 func (l *life) WaitStart() {
 	l.started.L.Lock()
 	l.started.Wait()
+	l.started.L.Unlock()
 }
 
 func (l *life) WaitStop() {
 	l.stopped.L.Lock()
 	l.stopped.Wait()
+	l.stopped.L.Unlock()
 }
