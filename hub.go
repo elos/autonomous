@@ -87,8 +87,11 @@ func (h *Hub) shutdown() {
 }
 
 func (h *Hub) Agents() map[Agent]bool {
+	as := make(map[Agent]bool)
 	h.mapLock.Lock()
-	as := h.agents
+	for k, v := range h.agents {
+		as[k] = v
+	}
 	h.mapLock.Unlock()
 	return as
 }
