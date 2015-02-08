@@ -14,7 +14,7 @@ func TestManaged(t *testing.T) {
 		t.Errorf("new(Managed) should not return nil")
 	}
 
-	var h Manager = NewHub()
+	var h = NewHub()
 
 	m.SetManager(h)
 
