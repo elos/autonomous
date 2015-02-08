@@ -1,10 +1,8 @@
-package autonomous_test
+package autonomous
 
 import (
 	"testing"
 	"time"
-
-	. "github.com/elos/autonomous"
 )
 
 func TestLife(t *testing.T) {

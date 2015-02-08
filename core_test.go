@@ -1,12 +1,10 @@
-package autonomous_test
+package autonomous
 
 import (
 	"math/rand"
 	"sync"
 	"testing"
 	"time"
-
-	. "github.com/elos/autonomous"
 )
 
 func TestManaged(t *testing.T) {
