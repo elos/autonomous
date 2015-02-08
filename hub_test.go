@@ -107,7 +107,7 @@ func TestHub(t *testing.T) {
 		t.Errorf("Not all agents made it to hub")
 	}
 
-	for agent, _ := range h.Agents() {
+	for agent := range h.Agents() {
 		if agent.Alive() != true {
 			t.Errorf("One agent wasn't correctly started")
 		}

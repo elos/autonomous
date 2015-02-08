@@ -7,7 +7,7 @@ import (
 
 func TestLife(t *testing.T) {
 
-	var testLife Life = NewLife()
+	var testLife = NewLife()
 
 	if testLife == nil {
 		t.Errorf("test life object is nil")

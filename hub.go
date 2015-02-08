@@ -63,7 +63,7 @@ func (h *Hub) shutdown() {
 	var wg sync.WaitGroup
 
 	h.mapLock.Lock()
-	for agent, _ := range h.agents {
+	for agent := range h.agents {
 		wg.Add(1)
 		go func(a Agent) {
 			wg.Done()
@@ -74,7 +74,7 @@ func (h *Hub) shutdown() {
 
 	wg.Wait()
 
-	for agent, _ := range h.agents {
+	for agent := range h.agents {
 		wg.Add(1) // for each post-wait stop
 		go func(a Agent) {
 			a.Stop()
