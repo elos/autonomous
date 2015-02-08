@@ -88,7 +88,7 @@ func TestTallied(t *testing.T) {
 	wg.Wait()
 
 	if tally.Tally() != 0 {
-		t.Errorf("Tally is not thread-safe expected 0, got %s", tally.Tally())
+		t.Errorf("Tally is not thread-safe expected 0, got %d", tally.Tally())
 	}
 
 }

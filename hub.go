@@ -65,20 +65,20 @@ func (h *Hub) shutdown() {
 	h.mapLock.Lock()
 	for agent, _ := range h.agents {
 		wg.Add(1)
-		go func() {
+		go func(a Agent) {
 			wg.Done()
-			agent.WaitStop()
+			a.WaitStop()
 			wg.Done()
-		}()
+		}(agent)
 	}
 
 	wg.Wait()
 
 	for agent, _ := range h.agents {
 		wg.Add(1) // for each post-wait stop
-		go func() {
-			agent.Stop()
-		}()
+		go func(a Agent) {
+			a.Stop()
+		}(agent)
 	}
 	h.mapLock.Unlock()
 
