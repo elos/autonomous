@@ -46,6 +46,7 @@ Run:
 			h.mapLock.Lock()
 			h.agents[a] = true
 			h.mapLock.Unlock()
+			a.SetManager(h)
 		case a := <-h.stop:
 			go a.Stop()
 			h.mapLock.Lock()
