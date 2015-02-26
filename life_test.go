@@ -131,3 +131,100 @@ func TestLife(t *testing.T) {
 
 	t.Log("Successfully handled multi WaitStarts")
 }
+
+func TestMultipleLives(t *testing.T) {
+	testLife := NewLife()
+	testLife.Begin()
+
+	c := make(chan bool)
+	go func() {
+		testLife.WaitStop()
+		c <- true
+	}()
+
+	go testLife.End()
+
+	select {
+	case <-time.After(1 * time.Second):
+		t.Errorf("Timeout on first life wait start")
+	case <-c:
+	}
+
+	testLife.Begin()
+
+	if testLife.Alive() != true {
+		t.Errorf("Test life should alive in its second life")
+	}
+
+	c = make(chan bool)
+	go func() {
+		testLife.WaitStop()
+		c <- true
+	}()
+
+	go testLife.End()
+	testLife.WaitStop()
+
+	select {
+	case <-time.After(1 * time.Second):
+		t.Errorf("Timeout on second life wait start")
+	case <-c:
+	}
+
+	testLife.Begin()
+	go testLife.End()
+	testLife.WaitStop()
+	if testLife.Alive() != false {
+		t.Errorf("testLife should be dead")
+	}
+
+}
+
+func TestMultipleWaiters(t *testing.T) {
+	testLife := NewLife()
+
+	go testLife.Begin()
+	testLife.WaitStart()
+	if testLife.Alive() != true {
+		t.Errorf("testlife should be alive")
+	}
+
+	one := make(chan bool)
+	two := make(chan bool)
+	three := make(chan bool)
+
+	go func() {
+		testLife.WaitStop()
+		one <- true
+	}()
+
+	go func() {
+		testLife.WaitStop()
+		two <- true
+	}()
+
+	go func() {
+		testLife.WaitStop()
+		three <- true
+	}()
+
+	go testLife.End()
+
+	select {
+	case <-time.After(1 * time.Second):
+		t.Errorf("Timeout on first WaitStop")
+	case <-one:
+	}
+
+	select {
+	case <-time.After(1 * time.Second):
+		t.Errorf("Timeout on second second WaitStop")
+	case <-two:
+	}
+
+	select {
+	case <-time.After(1 * time.Second):
+		t.Errorf("Timeout on third WaitStop")
+	case <-three:
+	}
+}
