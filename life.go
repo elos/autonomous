@@ -13,6 +13,8 @@ type Life interface {
 type life struct {
 	alive bool
 	m     *sync.Mutex
+	bm    *sync.Mutex
+	em    *sync.Mutex
 	stop  chan bool
 
 	started *sync.Cond
@@ -23,11 +25,13 @@ func NewLife() Life {
 	l := &life{
 		alive: false,
 		m:     new(sync.Mutex),
+		em:    new(sync.Mutex),
+		bm:    new(sync.Mutex),
 		stop:  make(chan bool),
 	}
 
-	l.started = sync.NewCond(l.m)
-	l.stopped = sync.NewCond(l.m)
+	l.started = sync.NewCond(l.em)
+	l.stopped = sync.NewCond(l.bm)
 
 	return l
 }
