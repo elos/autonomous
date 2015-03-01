@@ -227,4 +227,22 @@ func TestMultipleWaiters(t *testing.T) {
 		t.Errorf("Timeout on third WaitStop")
 	case <-three:
 	}
+
+	final := make(chan bool)
+	go func() {
+		testLife.WaitStop()
+		final <- true
+	}()
+
+	select {
+	case <-time.After(20 * time.Millisecond):
+	case <-final:
+		t.Errorf("Should not have exited WaitStop")
+	}
+
+	testLife.End()
+	<-final
+}
+
+func TestWaitStartLocking(t *testing.T) {
 }
