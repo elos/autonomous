@@ -1,20 +1,22 @@
 package autonomous
 
-type Agent interface {
-	Start()
-	Stop()
+type (
+	Agent interface {
+		Start()
+		Stop()
 
-	Alive() bool
-	WaitStart()
-	WaitStop()
+		Alive() bool
+		WaitStart()
+		WaitStop()
 
-	SetManager(Manager)
-	Manager() Manager
-}
+		SetManager(Manager)
+		Manager() Manager
+	}
 
-type Manager interface {
-	Agent
+	Manager interface {
+		Agent
 
-	StartAgent(Agent)
-	StopAgent(Agent)
-}
+		StartAgent(Agent)
+		StopAgent(Agent)
+	}
+)

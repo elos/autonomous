@@ -4,6 +4,8 @@ import (
 	"sync"
 )
 
+// --- Managed {{{
+
 type Managed struct {
 	manager Manager
 	sync.Mutex
@@ -22,6 +24,10 @@ func (m *Managed) SetManager(newM Manager) {
 
 	m.manager = newM
 }
+
+// --- }}
+
+// --- Tallied {{{
 
 type Tallied struct {
 	tally int
@@ -62,3 +68,5 @@ type Stopper chan bool
 func (s Stopper) Stop() {
 	s <- true
 }
+
+// --- }}}
